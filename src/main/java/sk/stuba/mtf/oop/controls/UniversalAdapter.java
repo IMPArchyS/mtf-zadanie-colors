@@ -1,4 +1,4 @@
-package sk.stuba.fei.uim.oop.controls;
+package sk.stuba.mtf.oop.controls;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;

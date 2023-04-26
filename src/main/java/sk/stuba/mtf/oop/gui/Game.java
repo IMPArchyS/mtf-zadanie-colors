@@ -1,13 +1,13 @@
-package sk.stuba.fei.uim.oop.gui;
+package sk.stuba.mtf.oop.gui;
 
-import sk.stuba.fei.uim.oop.controls.GameLogic;
+import sk.stuba.mtf.oop.controls.GameLogic;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Game {
     public Game() {
-        JFrame frame = new JFrame("Water Pipes");
+        JFrame frame = new JFrame("Logik");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(820, 820);
         frame.setResizable(false);
@@ -24,14 +24,14 @@ public class Game {
         buttonRestart.addActionListener(logic);
         buttonRestart.setFocusable(false);
 
-        JButton buttonCheckWin = new JButton("Check Route");
+        JButton buttonCheckWin = new JButton("Available colors");
         buttonCheckWin.addActionListener(logic);
         buttonCheckWin.setFocusable(false);
 
 
-        JSlider slider = new JSlider(JSlider.HORIZONTAL, 8, 12, 8);
-        slider.setMinorTickSpacing(2);
-        slider.setMajorTickSpacing(2);
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 3, 6, 3);
+        slider.setMinorTickSpacing(1);
+        slider.setMajorTickSpacing(1);
         slider.setSnapToTicks(true);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);

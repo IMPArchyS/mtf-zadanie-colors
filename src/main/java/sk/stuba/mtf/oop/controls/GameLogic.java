@@ -1,9 +1,8 @@
-package sk.stuba.fei.uim.oop.controls;
+package sk.stuba.mtf.oop.controls;
 
 import lombok.Getter;
-import sk.stuba.fei.uim.oop.board.Board;
-import sk.stuba.fei.uim.oop.board.State;
-import sk.stuba.fei.uim.oop.tile.Tile;
+import sk.stuba.mtf.oop.board.Board;
+import sk.stuba.mtf.oop.tile.Tile;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -11,21 +10,27 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 
 public class GameLogic extends UniversalAdapter {
-    public static final int INITIAL_BOARD_SIZE = 8;
-    public static final String CHECK_ROUTE = "Check Route";
+    public static final int INITIAL_BOARD_SIZE = 3;
+    public static final String COLORS[] = {"blue", "red", "orange", "yellow", "green", "magenta", "pink"};
+    public static final String HELP = "Available colors";
     public static final String RESTART = "Restart";
     private JFrame mainGame;
     private Board currentBoard;
     @Getter
     private JLabel infoLabel;
     private int currentBoardSize;
-    private int level;
+    private double percentage;
+    private int correctGuesses;
+    private int totalGuesses;
 
     public GameLogic(JFrame mainGame) {
         this.mainGame = mainGame;
-        this.level = 1;
+        this.percentage = 100;
+        this.correctGuesses = 0;
+        this.totalGuesses = 0;
         this.currentBoardSize = INITIAL_BOARD_SIZE;
         this.initializeNewBoard(this.currentBoardSize);
         this.mainGame.add(this.currentBoard);
@@ -40,29 +45,28 @@ public class GameLogic extends UniversalAdapter {
     }
 
     private void updateInfoLabels() {
-        this.infoLabel.setText("Level : " + level + " - Current board size: " + this.currentBoardSize);
+        if (totalGuesses == 0) {
+            this.percentage = 100;
+        } else {
+            this.percentage = (double) correctGuesses / totalGuesses * 100;
+        }
+        this.infoLabel.setText(String.format("Percentage : %.2f%% - Correct guesses: %d - Current board size : %d", this.percentage, this.correctGuesses, this.currentBoardSize));
         this.mainGame.revalidate();
         this.mainGame.repaint();
     }
 
     private void gameRestart() {
         this.mainGame.remove(this.currentBoard);
-        this.level = 1;
+        this.correctGuesses = 0;
+        this.totalGuesses = 0;
+        this.percentage = 100;
         this.initializeNewBoard(this.currentBoardSize);
         this.mainGame.add(this.currentBoard);
         this.updateInfoLabels();
     }
 
-    private void checkRoute() {
-        boolean newLevel = this.currentBoard.floodPipes();
-        this.mainGame.repaint();
-        if (newLevel) {
-            this.level++;
-            this.mainGame.remove(this.currentBoard);
-            this.initializeNewBoard(this.currentBoardSize);
-            this.mainGame.add(this.currentBoard);
-            this.updateInfoLabels();
-        }
+    private void helpPopup() {
+        JOptionPane.showMessageDialog(null, "Available colors:\nblue\nred\norange\nyellow\ngreen\nmagenta\npink", "Logik",JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
@@ -82,19 +86,47 @@ public class GameLogic extends UniversalAdapter {
         if (!(current instanceof Tile)) {
             return;
         }
-        if (((Tile) current).getState().equals(State.PIPE)) {
-            this.currentBoard.unfloodPipes();
-            ((Tile) current).setHighlighted(true);
-            ((Tile) current).rotate();
+        ((Tile) current).getTileInfo();
+        if (!((Tile) current).isRevealed()) {
+            String colorName  = JOptionPane.showInputDialog(null, "Type in the color name:", "Your guess", JOptionPane.QUESTION_MESSAGE);
+            if (!Arrays.asList(COLORS).contains(colorName)) {
+                JOptionPane.showMessageDialog(null, "Not a valid color!", "Logik", JOptionPane.WARNING_MESSAGE);
+                colorName = null;
+            }
+            if (colorName != null) {
+                if (colorName.equals(((Tile) current).getColorName())) {
+                    ((Tile) current).setRevealed(true);
+                    this.correctGuesses++;
+                    this.totalGuesses++;
+                    this.currentBoard.repaint();
+                } else {
+                    this.totalGuesses++;
+                    JOptionPane.showMessageDialog(null, "Wrong guess!", "Logik", JOptionPane.ERROR_MESSAGE);
+                }
+                if (this.currentBoard.checkWin()) {
+                    int choice = JOptionPane.showOptionDialog(null, "YOU WON! Play again?", "Logik",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+                    if (choice == JOptionPane.YES_OPTION) {
+                        this.gameRestart();
+                        this.mainGame.revalidate();
+                        this.mainGame.repaint();
+                        this.mainGame.setFocusable(true);
+                        this.mainGame.requestFocus();
+                    } else {
+                        this.mainGame.dispose();
+                        System.exit(0);
+                    }
+                }
+            }
         }
+        this.updateInfoLabels();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         JButton pressedButton = new JButton();
         pressedButton = (JButton) e.getSource();
-        if (pressedButton.getText().equals(CHECK_ROUTE)) {
-            this.checkRoute();
+        if (pressedButton.getText().equals(HELP)) {
+            this.helpPopup();
         } else if (pressedButton.getText().equals(RESTART)) {
             this.gameRestart();
             this.mainGame.revalidate();
@@ -122,7 +154,7 @@ public class GameLogic extends UniversalAdapter {
                 this.gameRestart();
                 break;
             case KeyEvent.VK_ENTER:
-                this.checkRoute();
+                this.helpPopup();
                 break;
             case KeyEvent.VK_ESCAPE:
                 this.mainGame.dispose();
