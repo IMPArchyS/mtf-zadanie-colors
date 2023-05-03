@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 public class GameLogic extends UniversalAdapter {
     public static final int INITIAL_BOARD_SIZE = 3;
-    public static final String COLORS[] = {"blue", "red", "orange", "yellow", "green", "magenta", "pink"};
+    public static final String COLORS[] = {"blue", "orange", "yellow", "pink"};
     public static final String HELP = "Available colors";
     public static final String RESTART = "Restart";
     private JFrame mainGame;
@@ -66,7 +66,7 @@ public class GameLogic extends UniversalAdapter {
     }
 
     private void helpPopup() {
-        JOptionPane.showMessageDialog(null, "Available colors:\nblue\nred\norange\nyellow\ngreen\nmagenta\npink", "Logik",JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Available colors:\nblue\norange\nyellow\npink", "Logik",JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
@@ -76,7 +76,9 @@ public class GameLogic extends UniversalAdapter {
             this.currentBoard.repaint();
             return;
         }
-        ((Tile) current).setHighlighted(true);
+        if (!((Tile) current).isRevealed()) {
+            ((Tile) current).setHighlighted(true);
+        }
         this.currentBoard.repaint();
     }
 
@@ -96,15 +98,18 @@ public class GameLogic extends UniversalAdapter {
             if (colorName != null) {
                 if (colorName.equals(((Tile) current).getColorName())) {
                     ((Tile) current).setRevealed(true);
+                    ((Tile) current).setCorrectGuess(true);
                     this.correctGuesses++;
                     this.totalGuesses++;
                     this.currentBoard.repaint();
                 } else {
                     this.totalGuesses++;
+                    ((Tile) current).setTileColor(colorName);
+                    ((Tile) current).setRevealed(true);
                     JOptionPane.showMessageDialog(null, "Wrong guess!", "Logik", JOptionPane.ERROR_MESSAGE);
                 }
                 if (this.currentBoard.checkWin()) {
-                    int choice = JOptionPane.showOptionDialog(null, "YOU WON! Play again?", "Logik",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+                    int choice = JOptionPane.showOptionDialog(null, "Game Over!\nPlay again?", "Logik",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
                     if (choice == JOptionPane.YES_OPTION) {
                         this.gameRestart();
                         this.mainGame.revalidate();
