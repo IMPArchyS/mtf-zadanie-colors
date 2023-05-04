@@ -24,24 +24,20 @@ public class Game {
         buttonRestart.addActionListener(logic);
         buttonRestart.setFocusable(false);
 
-        JButton buttonCheckWin = new JButton("Available colors");
-        buttonCheckWin.addActionListener(logic);
-        buttonCheckWin.setFocusable(false);
+        JButton buttonAvailableColors = new JButton("Available colors");
+        buttonAvailableColors.addActionListener(logic);
+        buttonAvailableColors.setFocusable(false);
 
+        JButton buttonGuesser = new JButton("Guess");
+        buttonGuesser.addActionListener(logic);
+        buttonGuesser.setFocusable(false);
 
-        JSlider slider = new JSlider(JSlider.HORIZONTAL, 3, 6, 3);
-        slider.setMinorTickSpacing(1);
-        slider.setMajorTickSpacing(1);
-        slider.setSnapToTicks(true);
-        slider.setPaintTicks(true);
-        slider.setPaintLabels(true);
-        slider.addChangeListener(logic);
 
         sideMenu.setLayout(new GridLayout(2, 2));
-        sideMenu.add(buttonCheckWin);
+        sideMenu.add(buttonAvailableColors);
         sideMenu.add(buttonRestart);
+        sideMenu.add(buttonGuesser);
         sideMenu.add(logic.getInfoLabel());
-        sideMenu.add(slider);
         frame.add(sideMenu, BorderLayout.PAGE_START);
         frame.setLocationRelativeTo(null);
 

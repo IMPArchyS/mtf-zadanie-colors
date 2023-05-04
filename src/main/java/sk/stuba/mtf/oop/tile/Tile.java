@@ -12,30 +12,37 @@ public class Tile extends JPanel {
 
     @Getter @Setter
     private boolean revealed;
-    @Setter
-    private boolean correctGuess;
+
     @Getter
     private Color color;
     @Getter
     private String colorName;
-    @Getter
-    private int col;
-    @Getter
-    private int row;
-    public Tile(int x, int y) {
-        this.col = x;
-        this.row = y;
+
+    @Getter @Setter
+    private State state;
+    public Tile() {
         this.highlighted = false;
         this.revealed = false;
-        this.correctGuess = false;
+        this.state = State.NONE;
         this.setRandomColor();
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         this.setBackground(Color.LIGHT_GRAY);
     }
 
+    public Tile(Tile other) {
+        this.highlighted = other.highlighted;
+        this.revealed = other.revealed;
+        this.state = other.state;
+        this.color = other.color;
+        this.colorName = other.colorName;
+        this.setBorder(other.getBorder());
+        this.setBackground(other.getBackground());
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         if (this.revealed) {
             g.setColor(color);
             g.fillRect(0, 0, getWidth(), getHeight());
@@ -50,18 +57,22 @@ public class Tile extends JPanel {
         ((Graphics2D) g).setStroke(new BasicStroke(15));
         g.drawRect(0, 0, getWidth(), getHeight());
         
-        if (!this.correctGuess && this.revealed) {
+        if (this.state.equals(State.WRONG) && this.revealed) {
             g.setColor(Color.RED);
             ((Graphics2D) g).setStroke(new BasicStroke(8));
-            g.drawLine(0,this.getHeight(),this.getWidth(),0);
-            g.drawLine(this.getWidth(),this.getHeight(),0,0);
+            g.drawLine(this.getWidth() / 4, this.getHeight() / 4, this.getWidth() - this.getWidth() / 4, this.getHeight() - this.getHeight() / 4);
+            g.drawLine(this.getWidth() - this.getWidth() / 4, this.getHeight() / 4, this.getWidth() / 4, this.getHeight() - this.getHeight() / 4);
             g.setColor(color);
-        } else if (this.correctGuess && this.revealed) {
+        } else if (this.state.equals(State.CORRECT) && this.revealed) {
             g.setColor(Color.GREEN);
             ((Graphics2D) g).setStroke(new BasicStroke(8));
             g.drawLine(this.getWidth() / 4, this.getHeight() / 2, this.getWidth() / 2, this.getHeight() / 4 * 3);
             g.drawLine(this.getWidth() / 2, this.getHeight() / 4 * 3, this.getWidth() / 4 * 3, this.getHeight() / 4);
             g.setColor(color);
+        } else if (this.state.equals(State.WRONG_PLACE) && this.revealed) {
+            g.setColor(Color.GRAY);
+            g.fillOval( (int) (0 + this.getWidth() * 0.3), (int) (0 + this.getHeight() * 0.3),
+                        (int) (this.getWidth() * 0.4), (int) (this.getHeight() * 0.4));
         }
         ((Graphics2D) g).setStroke(new BasicStroke(1));
     }
@@ -69,8 +80,6 @@ public class Tile extends JPanel {
     public void getTileInfo() {
         System.out.println("\nTILE INFO");
         System.out.println("Color: " + this.getColorName());
-        System.out.println("cord X: " + this.col);
-        System.out.println("cord Y: " + this.row);
     }
     private void setRandomColor() {
         int colorIndex = (int) (Math.random() * 4);
@@ -98,21 +107,21 @@ public class Tile extends JPanel {
         }
     }
 
-    public void setTileColor(String c) {
+    public void setTileColor(char c) {
         switch (c) {
-            case "blue":
+            case 'B':
                 this.color = Color.BLUE;
                 this.colorName = "blue";
                 break;
-            case "orange":
+            case 'O':
                 this.color = Color.ORANGE;
                 this.colorName = "orange";
                 break;
-            case "yellow":
+            case 'Y':
                 this.color = Color.YELLOW;
                 this.colorName = "yellow";
                 break;
-            case "pink":
+            case 'P':
                 this.color = Color.MAGENTA;
                 this.colorName = "pink";
                 break;
