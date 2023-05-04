@@ -49,16 +49,13 @@ public class GameLogic extends UniversalAdapter {
         } else {
             this.percentage = (double) correctGuesses / totalGuesses * 100;
         }
-        this.infoLabel.setText(String.format("Percentage : %.2f%% - Correct guesses: %d", this.percentage, this.correctGuesses));
+        this.infoLabel.setText(String.format("Percentage : %.2f%% - Correct guesses: %d - Total guesses: %d", this.percentage, this.correctGuesses, this.totalGuesses));
         this.mainGame.revalidate();
         this.mainGame.repaint();
     }
 
     private void gameRestart() {
         this.mainGame.remove(this.currentBoard);
-        this.correctGuesses = 0;
-        this.totalGuesses = 0;
-        this.percentage = 100;
         this.currentRow = 0; 
         this.initializeNewBoard(INITIAL_BOARD_SIZE);
         this.mainGame.add(this.currentBoard);
@@ -94,13 +91,16 @@ public class GameLogic extends UniversalAdapter {
         boolean hasWon = currentBoard.validateGuess(combinationGuess, currentRow);
         this.currentBoard.revealTiles(currentRow);
         currentRow++;
+        this.updateInfoLabels();
         this.endPopUp(hasWon);
     }
 
     private void endPopUp(boolean hasWon) { 
         if (currentRow == INITIAL_BOARD_SIZE || hasWon) {
+            this.totalGuesses++; 
             int choice;
             if (hasWon) {
+                this.correctGuesses++;
                 choice = JOptionPane.showOptionDialog(null, "You won!\nPlay again?", "Logik",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
             } else {
                 choice = JOptionPane.showOptionDialog(null, "Game Over!\nPlay again?", "Logik",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
